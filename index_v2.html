@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>携帯から「第二の脳」を使う — セットアップガイド</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #242424;
+      --border: #333;
+      --text: #e0e0e0;
+      --text-muted: #888;
+      --accent: #6c9eff;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --orange: #fb923c;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      font-size: 16px;
+    }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; }
+    .hero { text-align: center; padding: 60px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+    .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+    .hero .subtitle { color: var(--text-muted); font-size: 15px; margin-bottom: 8px; }
+    .hero .oneliner { color: var(--green); font-size: 17px; font-weight: 600; margin-top: 16px; }
+    .hero .meta { margin-top: 20px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .hero .meta span { background: var(--surface2); padding: 4px 12px; border-radius: 20px; font-size: 13px; color: var(--text-muted); }
+    h2 { font-size: 22px; font-weight: 700; margin: 56px 0 20px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; color: var(--accent); }
+    h4 { font-size: 15px; font-weight: 600; margin: 24px 0 8px; }
+    p { margin: 12px 0; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+    @media (max-width: 600px) { .compare { grid-template-columns: 1fr; } }
+    .compare-card { background: var(--surface); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+    .compare-card.after { border-color: var(--green); }
+    .compare-card h4 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+    .compare-card.before h4 { color: var(--text-muted); }
+    .compare-card.after h4 { color: var(--green); }
+    .compare-card ul { list-style: none; padding: 0; }
+    .compare-card li { margin: 8px 0; font-size: 14px; padding-left: 20px; position: relative; }
+    .compare-card.before li::before { content: '×'; position: absolute; left: 0; color: var(--red); font-weight: bold; }
+    .compare-card.after li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: bold; }
+    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+    @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .feature-card .emoji { font-size: 28px; margin-bottom: 8px; }
+    .feature-card h4 { margin: 0 0 8px; color: var(--text); }
+    .feature-card p { font-size: 14px; color: var(--text-muted); margin: 0; }
+    .diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 24px 0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.6; overflow-x: auto; white-space: pre; color: var(--text-muted); }
+    .step { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin: 32px 0; position: relative; }
+    .step-number { position: absolute; top: -14px; left: 24px; background: var(--accent); color: var(--bg); font-weight: 700; font-size: 13px; padding: 2px 14px; border-radius: 20px; }
+    .step-time { position: absolute; top: -14px; right: 24px; background: var(--surface2); color: var(--text-muted); font-size: 12px; padding: 2px 12px; border-radius: 20px; border: 1px solid var(--border); }
+    .step h3 { margin-top: 4px; color: var(--text); }
+    .warning { background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 16px 16px 16px 44px; margin: 16px 0; position: relative; font-size: 14px; }
+    .warning::before { content: '⚠️'; position: absolute; left: 16px; top: 16px; }
+    .info { background: rgba(108, 158, 255, 0.08); border: 1px solid rgba(108, 158, 255, 0.2); border-radius: 8px; padding: 16px 16px 16px 44px; margin: 16px 0; position: relative; font-size: 14px; }
+    .info::before { content: '💡'; position: absolute; left: 16px; top: 16px; }
+    .safe { background: rgba(74, 222, 128, 0.08); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 8px; padding: 16px 16px 16px 44px; margin: 16px 0; position: relative; font-size: 14px; }
+    .safe::before { content: '🔒'; position: absolute; left: 16px; top: 16px; }
+    .success { background: rgba(74, 222, 128, 0.08); border: 1px solid rgba(74, 222, 128, 0.3); border-radius: 12px; padding: 24px; margin: 32px 0; text-align: center; }
+    .success h3 { color: var(--green); font-size: 20px; }
+    .success ul { list-style: none; padding: 0; margin-top: 16px; }
+    .success li { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: var(--surface2); font-weight: 600; font-size: 13px; color: var(--text-muted); }
+    pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 16px 0; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.6; }
+    code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; }
+    p code, li code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 14px; }
+    ol, ul { padding-left: 24px; margin: 12px 0; }
+    li { margin: 6px 0; }
+    .your-part { background: linear-gradient(135deg, rgba(74, 222, 128, 0.12), rgba(108, 158, 255, 0.12)); border: 1px solid rgba(74, 222, 128, 0.3); border-radius: 16px; padding: 32px; margin-bottom: 40px; }
+    .your-part h2 { color: var(--green); font-size: 20px; margin: 0 0 12px; border: none; padding: 0; }
+    .your-part p { font-size: 15px; color: var(--text-muted); }
+    .divider { text-align: center; margin: 64px 0; color: var(--text-muted); font-size: 14px; position: relative; }
+    .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 35%; height: 1px; background: var(--border); }
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+    .qa { margin: 16px 0; }
+    .qa-q { font-weight: 600; color: var(--accent); margin: 20px 0 8px; font-size: 15px; }
+    .qa-a { color: var(--text-muted); font-size: 14px; padding-left: 16px; border-left: 2px solid var(--border); margin: 0 0 16px; }
+    footer { text-align: center; margin-top: 80px; padding: 24px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="hero">
+      <h1>携帯から「第二の脳」を使う</h1>
+      <p class="subtitle">Telegram × AI で、いつでもどこでも思考整理</p>
+      <p class="oneliner">🎤 話しかけるだけ。あとはAIがやる。</p>
+      <div class="meta">
+        <span>あなたの作業: 約5分</span>
+        <span>残りは西村が設定済み</span>
+      </div>
+    </div>
+
+    <h2>何が変わるか</h2>
+    <div class="compare">
+      <div class="compare-card before">
+        <h4>Before（今）</h4>
+        <ul>
+          <li>思考整理するにはPCを開く必要がある</li>
+          <li>移動中のアイデアが残せない</li>
+          <li>壁打ちはCursorのターミナルからだけ</li>
+          <li>Vaultを見るにはPCが必要</li>
+        </ul>
+      </div>
+      <div class="compare-card after">
+        <h4>After（これから）</h4>
+        <ul>
+          <li>携帯から音声で話すだけでOK</li>
+          <li>どこにいてもメモ・壁打ちできる</li>
+          <li>PCのClaude Codeと同じレベルの対話</li>
+          <li>Vault全体を携帯から参照・編集</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>できるようになること</h2>
+    <div class="features">
+      <div class="feature-card">
+        <div class="emoji">🎤</div>
+        <h4>音声で思考整理</h4>
+        <p>Telegramに音声メッセージを送るだけ。AIが文字起こしして、内容を理解して返答してくれる。タイピング不要。</p>
+      </div>
+      <div class="feature-card">
+        <div class="emoji">💭</div>
+        <h4>本格的な壁打ち</h4>
+        <p>PCのClaude Codeと同じように、Vault全体の情報を踏まえた深い対話ができる。事業の方向性、判断の整理など。</p>
+      </div>
+      <div class="feature-card">
+        <div class="emoji">📝</div>
+        <h4>どこでもメモ</h4>
+        <p>移動中に思いついたことを音声やテキストで送信。自動でVaultに保存される。</p>
+      </div>
+      <div class="feature-card">
+        <div class="emoji">📂</div>
+        <h4>Vault操作</h4>
+        <p>「今のPJ進捗を教えて」「先週の壁打ちメモを見せて」など、Vaultの中身を携帯から確認・編集できる。</p>
+      </div>
+      <div class="feature-card">
+        <div class="emoji">🔄</div>
+        <h4>自動振り返り</h4>
+        <p>毎日決まった時間に、AIがその日の活動を振り返ってTelegramに送ってくれる。見るだけでOK。</p>
+      </div>
+      <div class="feature-card">
+        <div class="emoji">⚡</div>
+        <h4>24時間いつでも</h4>
+        <p>PCの電源やスリープに関係なく動く。深夜でも早朝でも、思いついた瞬間に使える。</p>
+      </div>
+    </div>
+
+    <!-- ===== YOUR PART ===== -->
+    <div class="your-part">
+      <h2>✅ あなたがやること（これだけ）</h2>
+      <p>裏側の設定は西村がすべて完了させます。あなたの作業は以下の2ステップだけです。</p>
+    </div>
+
+    <div class="step" id="step1">
+      <span class="step-number">STEP 1</span>
+      <span class="step-time">約3分</span>
+      <h3>Telegram Botを作る</h3>
+      <p>あなた専用のAIアシスタント（Bot）を作ります。</p>
+      <h4>1-1. BotFatherを開く</h4>
+      <ol>
+        <li>Telegramアプリを開く</li>
+        <li>検索バーに <code>BotFather</code> と入力</li>
+        <li>青いチェックマーク ✔ 付きの公式アカウントをタップ</li>
+        <li>「Start」または「開始」をタップ</li>
+      </ol>
+      <h4>1-2. Botを作成</h4>
+      <ol>
+        <li><code>/newbot</code> と送信</li>
+        <li>Botの<strong>表示名</strong>を入力（例: <code>第二の脳</code>）— 日本語OK</li>
+        <li>Botの<strong>ユーザー名</strong>を入力（例: <code>igachi_brain_bot</code>）— 英数字のみ、末尾は <code>bot</code></li>
+      </ol>
+      <h4>1-3. トークンを西村に送る</h4>
+      <p>作成完了すると、BotFatherからこんなメッセージが届きます：</p>
+      <pre><code>Use this token to access the HTTP API:
+7123456789:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+      <p>この <code>7123456789:AA...</code> という文字列を<strong>西村に送ってください</strong>。西村がMac mini側の設定を行います。</p>
+      <div class="warning">
+        このトークンはパスワードと同じです。<strong>西村以外には見せないでください。</strong>
+      </div>
+    </div>
+
+    <div class="step" id="step2">
+      <span class="step-number">STEP 2</span>
+      <span class="step-time">約2分</span>
+      <h3>動作確認</h3>
+      <p>西村が設定完了の連絡をしたら、以下を試してください。</p>
+      <h4>2-1. テキスト送信テスト</h4>
+      <ol>
+        <li>作成したBotとのチャットを開く</li>
+        <li>何かテキストを送信（例: <code>テスト</code>）</li>
+        <li>Botから返事が返ってくればOK ✅</li>
+      </ol>
+      <h4>2-2. 音声送信テスト</h4>
+      <ol>
+        <li>マイクボタンを長押しして音声メッセージを送る</li>
+        <li>AIが文字起こしして返事してくれればOK ✅</li>
+      </ol>
+      <div class="info">うまくいかない場合は西村に連絡してください。すぐに対応します。</div>
+    </div>
+
+    <div class="success">
+      <h3>🎉 セットアップ完了！</h3>
+      <ul>
+        <li>音声で話しかけるだけで、AIと壁打ちできます</li>
+        <li>「メモして」と言えば、Vaultに自動保存されます</li>
+        <li>PCと同じレベルの思考整理が、携帯からできます</li>
+      </ul>
+    </div>
+
+    <!-- ===== DIVIDER ===== -->
+    <div class="divider">ここから下は仕組みの説明（読まなくてもOK）</div>
+
+    <h2>🔧 裏側の仕組み</h2>
+    <p>「どういう仕組みで動いてるの？」が気になる方向けの説明です。</p>
+
+    <h3>全体像</h3>
+    <div class="diagram"><span style="color:#6c9eff;font-weight:600">あなたの携帯</span>（Telegram アプリ）
+  │
+  │ テキスト or 音声メッセージを送信
+  │ （インターネット経由、暗号化通信）
+  ▼
+<span style="color:#6c9eff;font-weight:600">Telegram サーバー</span>（クラウド）
+  │
+  │ メッセージを転送
+  ▼
+<span style="color:#4ade80;font-weight:600">Mac mini</span>（西村が管理する常時稼働サーバー）
+  │
+  ├─ <span style="color:#fbbf24;font-weight:600">OpenClaw</span>（AIエージェント基盤）
+  │    ├─ 音声 → 自動文字起こし（Whisper AI）
+  │    ├─ Claude AI が内容を理解して返答
+  │    └─ 必要に応じて Vault を読み書き
+  │
+  ├─ <span style="color:#fbbf24;font-weight:600">Obsidian Vault</span>（あなたの「第二の脳」のコピー）
+  │    └─ GitHub経由で自動同期
+  │
+  ▼
+<span style="color:#6c9eff;font-weight:600">あなたの携帯</span>に返答が届く</div>
+
+    <h3>PCのClaude Codeとの比較</h3>
+    <table>
+      <tr><th></th><th>PC（Claude Code）</th><th>携帯（Telegram）</th></tr>
+      <tr><td>入力方法</td><td>キーボードで入力</td><td>音声 or テキスト</td></tr>
+      <tr><td>AI</td><td>Claude（同じ）</td><td>Claude（同じ）</td></tr>
+      <tr><td>Vault操作</td><td>✅ できる</td><td>✅ できる</td></tr>
+      <tr><td>壁打ち</td><td>✅ できる</td><td>✅ できる</td></tr>
+      <tr><td>いつ使える</td><td>PCの前にいるとき</td><td>いつでもどこでも</td></tr>
+      <tr><td>使う場面</td><td>腰を据えた作業</td><td>隙間時間・移動中</td></tr>
+    </table>
+    <div class="info">
+      PCとスマホで<strong>同じVault</strong>を見ています。携帯で追加したメモはPCのObsidianにも自動で反映されます（GitHub同期）。
+    </div>
+
+    <h3>使われている技術</h3>
+    <table>
+      <tr><th>技術</th><th>何をするか</th><th>わかりやすく言うと</th></tr>
+      <tr><td>Telegram</td><td>メッセージのやり取り</td><td>LINEのようなチャットアプリ</td></tr>
+      <tr><td>OpenClaw</td><td>AIとツールの橋渡し</td><td>AIの「手足」を動かす司令塔</td></tr>
+      <tr><td>Whisper</td><td>音声を文字に変換</td><td>自動文字起こし（OpenAI製）</td></tr>
+      <tr><td>Claude</td><td>文章を理解して返答</td><td>PCで使っているAIと同じ（Anthropic製）</td></tr>
+      <tr><td>GitHub</td><td>Vaultのクラウド同期</td><td>Dropboxのような自動バックアップ</td></tr>
+      <tr><td>Mac mini</td><td>すべてを動かすサーバー</td><td>24時間動いている専用PC</td></tr>
+    </table>
+
+    <h3>旧方式との比較</h3>
+    <p>以前のセットアップガイドでは、Google Cloud Run + 自作Python Bot + 複数APIキーの構成でした。今回の方式は大幅にシンプルです。</p>
+    <table>
+      <tr><th></th><th>旧方式（Cloud Run）</th><th>新方式（OpenClaw）</th></tr>
+      <tr><td>サーバー</td><td>Google Cloud（自分で管理）</td><td>Mac mini（西村が管理）</td></tr>
+      <tr><td>セットアップ</td><td>2〜3時間、7ステップ</td><td>5分、2ステップ</td></tr>
+      <tr><td>管理するキー</td><td>3つ（OpenAI, Anthropic, GitHub）</td><td>0（西村が管理）</td></tr>
+      <tr><td>できること</td><td>メモ保存 + 振り返り</td><td>Vault全操作 + 壁打ち + 何でも</td></tr>
+      <tr><td>メンテナンス</td><td>自分で対応</td><td>西村が対応</td></tr>
+      <tr><td>障害時</td><td>自分でログ確認</td><td>西村に連絡するだけ</td></tr>
+    </table>
+
+    <h2>🔒 セキュリティとリスク</h2>
+
+    <h3>安全な点</h3>
+    <div class="safe">
+      <strong>通信は暗号化されています。</strong><br>
+      Telegramのメッセージは暗号化されて送受信されます。第三者が途中で盗み見ることはできません。
+    </div>
+    <div class="safe">
+      <strong>あなた専用です。</strong><br>
+      Botはあなたのメッセージにしか反応しません。他の人がBotにメッセージを送っても無視されます。
+    </div>
+    <div class="safe">
+      <strong>データはあなたのVault内にあります。</strong><br>
+      AIとの会話やメモはObsidian Vault（GitHub）に保存されます。外部のサービスにデータが蓄積されることはありません。
+    </div>
+    <div class="safe">
+      <strong>すべての変更は記録されています。</strong><br>
+      Vaultへの書き込みはGitHubで全履歴が残ります。万が一AIが間違えても、いつでも元に戻せます。
+    </div>
+
+    <h3>知っておくべきリスク</h3>
+    <table>
+      <tr><th>リスク</th><th>説明</th><th>対策</th></tr>
+      <tr>
+        <td>Mac miniの停止</td>
+        <td>Mac miniの電源が落ちるとBotが停止する</td>
+        <td>西村が常時監視。停止時は速やかに復旧</td>
+      </tr>
+      <tr>
+        <td>AIの誤解</td>
+        <td>音声認識の精度は完璧ではなく、AIが意図と違う解釈をする可能性がある</td>
+        <td>重要な指示はテキストで送る。不安なら「今の内容を確認して」と聞く</td>
+      </tr>
+      <tr>
+        <td>Vaultの意図しない変更</td>
+        <td>AIが誤ってファイルを変更・削除する可能性がゼロではない</td>
+        <td>GitHubで全変更履歴が残っているため、いつでも元に戻せる</td>
+      </tr>
+      <tr>
+        <td>ネットワーク障害</td>
+        <td>インターネット接続がないとBotが使えない</td>
+        <td>Wi-Fiまたはモバイルデータがあれば使用可能</td>
+      </tr>
+    </table>
+
+    <h3>データの管理体制</h3>
+    <div class="info">
+      Mac miniは西村が管理しています。あなたのVaultデータは<strong>専用の隔離領域（ユーザーアカウント）</strong>に保存されており、西村の作業領域とは分離されています。<br><br>
+      技術的にはMac miniの管理者（西村）はアクセス可能ですが、運用上アクセスすることはありません。完全な隔離が必要な場合は、専用のMac miniを用意することも可能です。
+    </div>
+
+    <h2>💰 コスト</h2>
+    <table>
+      <tr><th>項目</th><th>費用</th><th>備考</th></tr>
+      <tr><td>Telegramアプリ</td><td>無料</td><td>ダウンロード・利用ともに無料</td></tr>
+      <tr><td>AI利用料</td><td>月 数百円〜2,000円程度</td><td>使用量による（音声文字起こし + AI対話）</td></tr>
+      <tr><td>サーバー維持費</td><td>なし</td><td>Mac miniは西村の環境で稼働</td></tr>
+    </table>
+    <div class="info">
+      <strong>Claude Code Maxプランを契約済みの場合</strong>、AI利用料の追加負担を抑える設定も可能です。詳細は西村に確認してください。
+    </div>
+
+    <h2>📱 使い方のコツ</h2>
+
+    <h3>音声入力のコツ</h3>
+    <ul>
+      <li><strong>結論から話す</strong> — 「〇〇について壁打ちしたい」「メモして」から始めると伝わりやすい</li>
+      <li><strong>短く区切る</strong> — 1メッセージ30秒〜1分が目安。長すぎると文字起こし精度が落ちる</li>
+      <li><strong>静かな場所で</strong> — 周囲の雑音が少ないほど精度が上がる</li>
+    </ul>
+
+    <h3>こんなふうに使える</h3>
+    <table>
+      <tr><th>場面</th><th>送信例</th></tr>
+      <tr><td>移動中にアイデアが浮かんだ</td><td>🎤「新規事業のアイデアなんだけど、〇〇って面白いと思うんだよね。メモしておいて」</td></tr>
+      <tr><td>判断に迷っている</td><td>🎤「AとBの選択肢があって迷ってる。それぞれのメリデメを整理してほしい」</td></tr>
+      <tr><td>MTG前に確認したい</td><td>📝「今のPJ進捗を教えて」</td></tr>
+      <tr><td>思考を整理したい</td><td>🎤「今期の広告本部の方針について壁打ちしたい」</td></tr>
+      <tr><td>タスクを残したい</td><td>📝「すぐやることリストに『〇〇の件で△△に連絡』を追加して」</td></tr>
+    </table>
+
+    <h2>❓ よくある質問</h2>
+    <div class="qa">
+      <p class="qa-q">Q. PCのClaude Codeと同時に使っても大丈夫？</p>
+      <p class="qa-a">はい、問題ありません。ただし同時に同じファイルを編集すると競合する可能性があるため、PCで腰を据えた作業、スマホで隙間時間と使い分けるのがおすすめです。</p>
+
+      <p class="qa-q">Q. Telegramのアカウントは仕事用？個人用？</p>
+      <p class="qa-a">どちらでもOKです。Botとの会話は完全に1対1なので、他の人に見られることはありません。</p>
+
+      <p class="qa-q">Q. 音声がうまく認識されない時は？</p>
+      <p class="qa-a">テキストで送り直してください。または「さっきの音声、正しくはこうです：〇〇」と補正できます。</p>
+
+      <p class="qa-q">Q. 間違った内容がVaultに保存されたら？</p>
+      <p class="qa-a">GitHubで全変更履歴が残っているので、いつでも元に戻せます。「さっきの保存を取り消して」と伝えても対応できます。</p>
+
+      <p class="qa-q">Q. 西村がいなくても使える？</p>
+      <p class="qa-a">はい、一度セットアップが完了すれば24時間自動で動き続けます。Mac miniの電源が入っている限り使えます。</p>
+
+      <p class="qa-q">Q. 今のSlack Botはどうなる？</p>
+      <p class="qa-a">Telegram版で同じこと（+それ以上）ができるため、移行後は不要になります。停止タイミングは西村と相談してください。</p>
+
+      <p class="qa-q">Q. 会話の内容はどこかに保存される？</p>
+      <p class="qa-a">AIとの会話ログはMac mini内とTelegramのチャット履歴に残ります。外部のサーバーに蓄積されることはありません。</p>
+    </div>
+
+    <h2>🛠 困ったとき</h2>
+    <table>
+      <tr><th>症状</th><th>対処</th></tr>
+      <tr><td>Botにメッセージを送っても反応がない</td><td>西村に連絡。Mac miniの状態を確認します</td></tr>
+      <tr><td>音声が文字起こしされない</td><td>テキストで送信してみる。改善しなければ西村に連絡</td></tr>
+      <tr><td>返答が遅い（1分以上）</td><td>AIが考え中の可能性あり。2分待って反応なければ西村に連絡</td></tr>
+      <tr><td>Vaultに反映されていない</td><td>数分待ってからObsidianを確認。反映されなければ西村に連絡</td></tr>
+    </table>
+    <div class="info">
+      基本的に<strong>「西村に連絡」で解決</strong>します。技術的な対処は西村が行うので、あなたが何かを調べたり直したりする必要はありません。
+    </div>
+
+    <footer>
+      <p>困ったら: 西村まで</p>
+      <p style="margin-top: 8px; font-size: 12px; color: #555;">Last updated: 2026-03-02</p>
+    </footer>
+  </div>
+</body>
+</html>
