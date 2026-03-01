@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Bot + 自動振り返り セットアップガイド</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #242424;
+      --border: #333;
+      --text: #e0e0e0;
+      --text-muted: #888;
+      --accent: #6c9eff;
+      --accent2: #a78bfa;
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --orange: #fb923c;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* How to use banner */
+    .how-to-use {
+      background: linear-gradient(135deg, rgba(108, 158, 255, 0.12), rgba(167, 139, 250, 0.12));
+      border: 1px solid rgba(108, 158, 255, 0.3);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 40px;
+    }
+    .how-to-use h2 {
+      color: var(--accent);
+      font-size: 18px;
+      margin: 0 0 16px;
+      border: none;
+      padding: 0;
+    }
+    .how-to-use .steps-list {
+      list-style: none;
+      padding: 0;
+      counter-reset: how-step;
+    }
+    .how-to-use .steps-list li {
+      counter-increment: how-step;
+      padding: 10px 0 10px 40px;
+      position: relative;
+      font-size: 15px;
+    }
+    .how-to-use .steps-list li::before {
+      content: counter(how-step);
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .download-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 15px;
+      padding: 12px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      margin: 16px 0;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    .download-btn:hover { opacity: 0.85; }
+    .first-prompt {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 16px 0;
+      position: relative;
+    }
+    .first-prompt label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .first-prompt pre {
+      margin: 0;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+
+    /* Header */
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+    .hero h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .hero .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+    .hero .meta {
+      margin-top: 20px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .hero .meta span {
+      background: var(--surface2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Sections */
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 56px 0 20px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin: 32px 0 12px;
+      color: var(--accent);
+    }
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 24px 0 8px;
+    }
+
+    p { margin: 12px 0; }
+
+    /* Goal box */
+    .goal-box {
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .goal-box h3 {
+      color: var(--accent);
+      margin: 0 0 16px;
+      font-size: 16px;
+    }
+    .goal-box ol {
+      padding-left: 20px;
+    }
+    .goal-box li {
+      margin: 8px 0;
+    }
+
+    /* Before/After */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    @media (max-width: 600px) {
+      .compare { grid-template-columns: 1fr; }
+    }
+    .compare-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+    .compare-card.after {
+      border-color: var(--green);
+    }
+    .compare-card h4 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .compare-card.before h4 { color: var(--text-muted); }
+    .compare-card.after h4 { color: var(--green); }
+    .compare-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .compare-card li {
+      margin: 8px 0;
+      font-size: 14px;
+      padding-left: 20px;
+      position: relative;
+    }
+    .compare-card.before li::before {
+      content: '×';
+      position: absolute;
+      left: 0;
+      color: var(--red);
+      font-weight: bold;
+    }
+    .compare-card.after li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-weight: bold;
+    }
+
+    /* Architecture diagram */
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--text-muted);
+    }
+
+    /* Step cards */
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin: 32px 0;
+      position: relative;
+    }
+    .step-number {
+      position: absolute;
+      top: -14px;
+      left: 24px;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 13px;
+      padding: 2px 14px;
+      border-radius: 20px;
+    }
+    .step-time {
+      position: absolute;
+      top: -14px;
+      right: 24px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 2px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .step h3 {
+      margin-top: 4px;
+      color: var(--text);
+    }
+
+    /* Ordered/Unordered lists */
+    ol, ul {
+      padding-left: 24px;
+      margin: 12px 0;
+    }
+    li { margin: 6px 0; }
+
+    /* Code blocks */
+    pre {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      position: relative;
+    }
+    code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+    }
+    p code, li code {
+      background: var(--surface2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    /* Copy button */
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    /* Warning/Info boxes */
+    .warning {
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 8px;
+      padding: 16px 16px 16px 44px;
+      margin: 16px 0;
+      position: relative;
+      font-size: 14px;
+    }
+    .warning::before {
+      content: '⚠️';
+      position: absolute;
+      left: 16px;
+      top: 16px;
+    }
+    .info {
+      background: rgba(108, 158, 255, 0.08);
+      border: 1px solid rgba(108, 158, 255, 0.2);
+      border-radius: 8px;
+      padding: 16px 16px 16px 44px;
+      margin: 16px 0;
+      position: relative;
+      font-size: 14px;
+    }
+    .info::before {
+      content: '💡';
+      position: absolute;
+      left: 16px;
+      top: 16px;
+    }
+    .cost {
+      background: rgba(74, 222, 128, 0.08);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      border-radius: 8px;
+      padding: 16px 16px 16px 44px;
+      margin: 16px 0;
+      position: relative;
+      font-size: 14px;
+    }
+    .cost::before {
+      content: '💰';
+      position: absolute;
+      left: 16px;
+      top: 16px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: var(--surface2);
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+    .checklist li {
+      padding: 8px 0 8px 32px;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+    .checklist li::before {
+      content: '☐';
+      position: absolute;
+      left: 4px;
+      font-size: 18px;
+    }
+
+    /* Success box */
+    .success {
+      background: rgba(74, 222, 128, 0.08);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 32px 0;
+      text-align: center;
+    }
+    .success h3 {
+      color: var(--green);
+      font-size: 20px;
+    }
+    .success ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 16px;
+    }
+    .success li {
+      margin: 8px 0;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      background: var(--surface2);
+      border-radius: 20px;
+      padding: 4px;
+      margin: 32px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border: 1px solid var(--border);
+    }
+    .progress-bar-inner {
+      display: flex;
+      gap: 4px;
+    }
+    .progress-step {
+      flex: 1;
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .progress-step:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    .progress-step.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    /* Customize section */
+    .customize-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    .customize-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 4px 0 12px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 80px;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- How to use -->
+    <div class="how-to-use">
+      <h2>このガイドの使い方</h2>
+      <p>このガイドは<strong>Claude Code に読み込ませて、AIにガイドしてもらいながら</strong>セットアップを進めます。<br>手順書を自分で読んで進める必要はありません。</p>
+
+      <ol class="steps-list">
+        <li>下のボタンからセットアップ用のファイルをダウンロード</li>
+        <li>ダウンロードしたファイルをドキュメントフォルダに置く</li>
+        <li>ターミナルで Claude Code を開く</li>
+        <li>下のプロンプトをコピーして Claude Code に送信</li>
+      </ol>
+
+      <a class="download-btn" href="TelegramBot_Setup_Guide.md" download>セットアップガイドをダウンロード</a>
+
+      <div class="first-prompt">
+        <label>Claude Code に最初に送るプロンプト:</label>
+        <pre><code>以下のファイルを読み込んで、このガイドに従ってセットアップを進めてください。
+1ステップずつ、確認しながら進めてください。
+
+ファイル: ~/Documents/TelegramBot_Setup_Guide.md</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 12px;">あとは Claude Code が対話形式で案内してくれます。詰まったらそのまま質問すればOKです。</p>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1>Telegram Bot + 自動振り返り<br>セットアップガイド</h1>
+      <p class="subtitle">携帯から音声メモ → AI自動振り返りが届く仕組みを作る</p>
+      <div class="meta">
+        <span>所要時間: 約2〜3時間</span>
+        <span>対象: Claude Code セットアップ済みの方</span>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <nav class="progress-bar">
+      <div class="progress-bar-inner">
+        <a class="progress-step" href="#step1">1. Bot作成</a>
+        <a class="progress-step" href="#step2">2. APIキー</a>
+        <a class="progress-step" href="#step3">3. GCP準備</a>
+        <a class="progress-step" href="#step4">4. 構築</a>
+        <a class="progress-step" href="#step5">5. 動作確認</a>
+        <a class="progress-step" href="#step6">6. デプロイ</a>
+        <a class="progress-step" href="#step7">7. 振り返り</a>
+      </div>
+    </nav>
+
+    <!-- Goal -->
+    <div class="goal-box">
+      <h3>このガイドを完走すると</h3>
+      <ol>
+        <li><strong>携帯からTelegramに音声/テキストを送る</strong> → Obsidian Vaultに自動で書き込まれる</li>
+        <li><strong>毎日決まった時間にAIが振り返りを作成</strong> → Telegramに届く</li>
+        <li><strong>Claude Codeで自分でBotの挙動をカスタマイズ</strong>できる</li>
+      </ol>
+    </div>
+
+    <!-- Before/After -->
+    <h2>何が変わるか</h2>
+    <div class="compare">
+      <div class="compare-card before">
+        <h4>Before（今）</h4>
+        <ul>
+          <li>Obsidianに書くにはPCを開く必要がある</li>
+          <li>振り返りは自分で意識してやるしかない</li>
+          <li>移動中のメモが残せない</li>
+        </ul>
+      </div>
+      <div class="compare-card after">
+        <h4>After（完了後）</h4>
+        <ul>
+          <li>携帯から音声で話すだけで自動保存</li>
+          <li>AIが毎日振り返りを送ってくれる</li>
+          <li>どこにいてもメモできる</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Architecture -->
+    <h2>全体像</h2>
+    <div class="diagram">あなたの携帯（Telegram）
+  ↓ 音声やテキストを送信
+Telegram Bot（クラウドで常時稼働）
+  ↓ 音声の場合 → 文字起こし（Whisper AI）
+  ↓ テキスト化された内容を整理（Claude AI）
+  ↓ Obsidian Vault に自動書き込み（GitHub経由）
+  ↓
+毎日決まった時間に
+  → AIが今日の活動を振り返り
+  → Telegramにメッセージとして届く</div>
+
+    <div class="info">
+      Botはクラウド（Google Cloud Run）で動くので、PCを起動しておく必要はありません。24時間いつでも使えます。
+    </div>
+
+    <!-- Prerequisites -->
+    <h2>事前準備チェックリスト</h2>
+    <ul class="checklist">
+      <li>Obsidian Vault が構築済み（第二の脳構築ガイド完了）</li>
+      <li>Claude Code が使える状態（Claude Codeセットアップガイド完了）</li>
+      <li>GitHub アカウントがある</li>
+      <li>Telegram アカウントを作成済み（スマホ + PC版）</li>
+    </ul>
+
+    <!-- STEP 1 -->
+    <div class="step" id="step1">
+      <span class="step-number">STEP 1</span>
+      <span class="step-time">約5分</span>
+      <h3>Telegram Bot を作る</h3>
+      <p>Telegram上で「BotFather」という公式ツールを使って、あなた専用のBotを作ります。</p>
+
+      <h4>1-1. BotFatherを開く</h4>
+      <ol>
+        <li>Telegramアプリ（PCまたはスマホ）を開く</li>
+        <li>検索バーに <code>BotFather</code> と入力</li>
+        <li>青いチェックマーク付きの公式アカウントをタップ</li>
+        <li>「Start」または「開始」ボタンをタップ</li>
+      </ol>
+
+      <h4>1-2. 新しいBotを作成</h4>
+      <ol>
+        <li><code>/newbot</code> と入力して送信</li>
+        <li>Botの<strong>表示名</strong>を聞かれるので入力（例: <code>マイアシスタント</code>）
+          <ul><li>日本語OK、後から変更可能</li></ul>
+        </li>
+        <li>Botの<strong>ユーザー名</strong>を聞かれるので入力（例: <code>my_assistant_12345_bot</code>）
+          <ul>
+            <li>半角英数字のみ</li>
+            <li>必ず <code>bot</code> で終わる必要がある</li>
+            <li>他の人と被らないユニークな名前にする</li>
+          </ul>
+        </li>
+      </ol>
+
+      <h4>1-3. トークンを保存</h4>
+      <p>作成が完了すると、BotFatherからこんなメッセージが届きます：</p>
+      <pre><code>Use this token to access the HTTP API:
+7123456789:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+
+      <div class="warning">
+        この <code>7123456789:AA...</code> という文字列がBotトークンです。コピーして安全な場所に保存してください。これは<strong>パスワードと同じ</strong>です。他人に見せないでください。
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="step2">
+      <span class="step-number">STEP 2</span>
+      <span class="step-time">約15分</span>
+      <h3>APIキーを取得する</h3>
+      <p>Botの中で使うAIサービスの「鍵」を取得します。鍵がないとAIが動きません。</p>
+
+      <h4>2-1. OpenAI APIキー（音声の文字起こし用）</h4>
+      <ol>
+        <li>ブラウザで <code>https://platform.openai.com</code> にアクセス</li>
+        <li>「Sign up」でアカウント作成（Googleアカウントでも可）</li>
+        <li>ログイン後、右上のアイコン →「API keys」をクリック</li>
+        <li>「Create new secret key」をクリック</li>
+        <li>名前を入力（例: <code>telegram-bot</code>）→「Create secret key」</li>
+        <li>表示されたキー（<code>sk-</code> で始まる文字列）をコピーして保存</li>
+      </ol>
+
+      <div class="warning">
+        キーは一度しか表示されません。必ずコピーして保存してください。
+      </div>
+
+      <div class="cost">
+        <strong>料金</strong>: 音声文字起こし1分あたり約1円。日常使いなら月数百円程度。<br>
+        最初に$5のクレジットチャージが必要です。
+      </div>
+
+      <h4>2-2. Anthropic APIキー（AI振り返り用）</h4>
+      <ol>
+        <li>ブラウザで <code>https://console.anthropic.com</code> にアクセス</li>
+        <li>「Sign up」でアカウント作成</li>
+        <li>ログイン後、左メニューの「API Keys」をクリック</li>
+        <li>「Create Key」をクリック</li>
+        <li>名前を入力（例: <code>telegram-bot</code>）→「Create Key」</li>
+        <li>表示されたキー（<code>sk-ant-</code> で始まる文字列）をコピーして保存</li>
+      </ol>
+
+      <div class="cost">
+        <strong>料金</strong>: AI処理1回あたり数円。日常使いなら月数百円〜千円程度。<br>
+        最初に$5のクレジットチャージが必要です。
+      </div>
+
+      <h4>2-3. 取得したキーの確認</h4>
+      <p>ここまでで、以下の3つのキーが手元にあるはずです：</p>
+      <table>
+        <tr><th>キー</th><th>どこで取得</th><th>何に使う</th></tr>
+        <tr><td>Telegram Botトークン</td><td>BotFather</td><td>Botの認証</td></tr>
+        <tr><td>OpenAI APIキー</td><td>platform.openai.com</td><td>音声→テキスト変換</td></tr>
+        <tr><td>Anthropic APIキー</td><td>console.anthropic.com</td><td>AI振り返り生成</td></tr>
+      </table>
+
+      <div class="warning">
+        これらのキーは絶対にコードに直接書かないでください。次のステップでClaude Codeが安全に設定します。
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" id="step3">
+      <span class="step-number">STEP 3</span>
+      <span class="step-time">約15分</span>
+      <h3>Google Cloudの準備</h3>
+      <p>BotをGoogleのクラウドで24時間動かすための準備です。</p>
+
+      <h4>3-1. Google Cloudアカウント作成</h4>
+      <ol>
+        <li>ブラウザで <code>https://console.cloud.google.com</code> にアクセス</li>
+        <li>Googleアカウントでログイン</li>
+        <li>初めての場合、利用規約に同意</li>
+        <li>「無料で開始」をクリック（$300分の無料クレジット付き）</li>
+      </ol>
+
+      <div class="info">
+        クレジットカード情報が求められますが、無料トライアル中は課金されません。
+      </div>
+
+      <h4>3-2. 新しいプロジェクトを作成</h4>
+      <ol>
+        <li>画面上部のプロジェクト選択バーをクリック</li>
+        <li>「新しいプロジェクト」をクリック</li>
+        <li>プロジェクト名を入力（例: <code>telegram-bot</code>）</li>
+        <li>「作成」をクリック → 作成したプロジェクトを選択</li>
+      </ol>
+
+      <h4>3-3. プロジェクトIDをメモ</h4>
+      <p>ダッシュボードに表示される<strong>プロジェクトID</strong>（例: <code>telegram-bot-123456</code>）をメモしてください。後で使います。</p>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" id="step4">
+      <span class="step-number">STEP 4</span>
+      <span class="step-time">約30分</span>
+      <h3>Claude Code でプロジェクトを構築する</h3>
+      <p>ここからはClaude Codeにプロンプトを送って、Botを作ってもらいます。</p>
+
+      <h4>4-1. Claude Codeを開く</h4>
+      <p>ターミナルを開いて（Launchpadで「ターミナル」を検索）、以下を入力：</p>
+      <pre><code>mkdir ~/telegram-bot && cd ~/telegram-bot && claude</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+
+      <h4>4-2. 以下のプロンプトをコピーして送信</h4>
+
+      <div class="warning">
+        送信する前に <code>（ここに〇〇を貼り付け）</code> の部分を、自分のキーに置き換えてください。
+      </div>
+
+      <pre><code># Telegram Bot プロジェクト構築依頼
+
+以下の仕様でTelegram Botプロジェクトを構築してください。
+
+## 概要
+携帯のTelegramから音声/テキストを送ると、Obsidian Vault（GitHub経由）に
+自動で書き込まれるBotを作る。毎日の振り返りも自動生成してTelegramに送る。
+
+## 環境情報
+- Telegram Botトークン: （ここにBotトークンを貼り付け）
+- OpenAI APIキー: （ここにOpenAI APIキーを貼り付け）
+- Anthropic APIキー: （ここにAnthropic APIキーを貼り付け）
+- GitHub ユーザー名: （ここにGitHubユーザー名を貼り付け）
+- GitHub リポジトリ名: （ここにVaultのリポジトリ名を貼り付け）
+- GitHub アクセストークン: （ここにGitHubトークンを貼り付け）
+- Google Cloud プロジェクトID: （ここにプロジェクトIDを貼り付け）
+
+## やってほしいこと
+
+### 1. プロジェクト構造の作成
+- Python 3.12 + aiogram 3 + FastAPI
+- 依存関係管理: requirements.txt
+- 環境変数は .env ファイルで管理（.gitignore に含める）
+- 上記のキー情報はすべて .env に保存
+
+### 2. Bot の基本機能
+- テキストメッセージ受信 → Obsidian Vaultに書き込み
+- 音声メッセージ受信 → 以下のフローで処理:
+  1. Whisper APIで文字起こし
+  2. 文字起こし結果をユーザーに表示し「この内容で保存しますか？」と確認
+  3. ユーザーが「はい」→ Vaultに書き込み / 「いいえ」→ 修正を促す
+  ※ 音声認識は誤字脱字が多いため、必ず確認ステップを入れる
+- Vaultへの書き込み形式:
+  - ファイルパス: 00_Inbox/YYYY-MM-DD_HHmm_telegram.md
+  - YAMLフロントマター付き（title, type: inbox, created, source: telegram）
+  - 書き込み成功したらBotが「保存しました」と返信
+
+### 3. 自動振り返り機能
+- 毎日21時に自動実行
+- その日にTelegramから送った内容を集約
+- Claude API（haiku）で振り返りを生成
+- 生成した振り返りをTelegramに送信
+- 振り返り内容もVaultに保存（07_DailyLog/YYYY-MM-DD_review.md）
+
+### 4. Cloud Run デプロイ用ファイル
+- Dockerfile
+- デプロイ用シェルスクリプト
+- Cloud Scheduler用の設定手順（READMEに記載）
+
+### 5. セキュリティ
+- すべてのキーは環境変数で管理
+- .env を .gitignore に含める
+- Bot は自分のTelegram IDからのメッセージのみ受け付ける
+
+### 6. README.md
+- ローカルでの起動方法
+- Cloud Runへのデプロイ手順（初心者向けに丁寧に）
+- Cloud Schedulerの設定方法
+- トラブルシューティング
+
+## 制約
+- 日本語でコメント・ドキュメントを書く
+- エラー時はわかりやすい日本語メッセージをTelegramに返す
+- 必ず動作確認してから完了報告する</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+
+      <h4>4-3. Claude Codeの指示に従う</h4>
+      <p>Claude Codeが順番にファイルを作成していきます。途中で「実行してよいですか？」と聞かれたら「はい」と答えてください。</p>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step" id="step5">
+      <span class="step-number">STEP 5</span>
+      <span class="step-time">約15分</span>
+      <h3>ローカルで動作確認</h3>
+      <p>クラウドにデプロイする前に、まず自分のPCで動くか確認します。</p>
+
+      <h4>5-1. Claude Codeに依頼</h4>
+      <pre><code>Botをローカルで起動して動作確認したいです。
+起動方法を教えて、一緒に確認してください。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+
+      <h4>5-2. Telegramでテスト</h4>
+      <p>Botを起動したら、Telegram で以下を試してください：</p>
+      <ol>
+        <li><strong>テキスト送信テスト</strong>
+          <ul>
+            <li>Botにテキストメッセージを送る</li>
+            <li>「保存しました」と返ってくればOK</li>
+            <li>Obsidianの 00_Inbox にファイルが作成されているか確認</li>
+          </ul>
+        </li>
+        <li><strong>音声送信テスト</strong>
+          <ul>
+            <li>Botに音声メッセージを送る（マイクボタン長押し）</li>
+            <li>文字起こし結果が表示され「この内容で保存しますか？」と聞かれる</li>
+            <li>内容が合っていれば「はい」→「保存しました」と返ればOK</li>
+            <li>誤字があれば「いいえ」→ 正しい内容をテキストで送り直す</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="info">
+        うまくいかない場合は、エラーメッセージをClaude Codeに送ってください。<br>
+        「このエラーが出ました。直してください。」でOKです。
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step" id="step6">
+      <span class="step-number">STEP 6</span>
+      <span class="step-time">約20分</span>
+      <h3>Cloud Run にデプロイ</h3>
+      <p>PCで動くことを確認できたら、Googleのクラウドにデプロイします。<br>これにより、PCを閉じていても24時間Botが動き続けます。</p>
+
+      <h4>6-1. gcloud CLIのインストール</h4>
+      <p>Claude Codeに以下を送信：</p>
+      <pre><code>Google Cloud（gcloud）のCLIをインストールして、
+プロジェクトID「（あなたのプロジェクトID）」で初期設定してください。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+      <p>途中でブラウザが開いてGoogleアカウントへのログインを求められます。ログインしてください。</p>
+
+      <h4>6-2. デプロイ</h4>
+      <pre><code>Cloud Run にBotをデプロイしてください。
+デプロイ後、Webhookの設定も行ってください。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+
+      <h4>6-3. デプロイ後の確認</h4>
+      <p>デプロイが完了したら、もう一度Telegramからテキスト/音声を送って動作確認してください。</p>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step" id="step7">
+      <span class="step-number">STEP 7</span>
+      <span class="step-time">約10分</span>
+      <h3>自動振り返りの設定</h3>
+      <p>毎日21時に自動で振り返りが届くようにします。</p>
+
+      <h4>7-1. Cloud Scheduler を設定</h4>
+      <pre><code>Cloud Schedulerを使って、毎日21時（日本時間）に
+自動振り返りが実行されるように設定してください。
+手順を教えてください。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+
+      <h4>7-2. 動作確認</h4>
+      <pre><code>振り返り機能を手動で実行して、テストしてください。
+Telegramに振り返りメッセージが届くか確認したいです。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+
+      <p>Telegramに振り返りメッセージが届けばOKです。</p>
+    </div>
+
+    <!-- Complete -->
+    <div class="success">
+      <h3>セットアップ完了！</h3>
+      <ul>
+        <li>携帯からTelegramに音声/テキストを送る → Vaultに自動保存</li>
+        <li>毎日21時にAIが振り返りを生成 → Telegramに届く</li>
+        <li>PCを閉じていてもBotは24時間動き続ける</li>
+      </ul>
+    </div>
+
+    <!-- Customize -->
+    <h2>カスタマイズの方法</h2>
+    <p>使い始めてから「こうしたい」が出てきたら、Claude Codeに相談してください。</p>
+
+    <div class="customize-card">
+      <h4>振り返りの時間を変えたい</h4>
+      <pre><code>自動振り返りの実行時間を21時から22時に変更してください。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+    </div>
+
+    <div class="customize-card">
+      <h4>振り返りの内容を変えたい</h4>
+      <pre><code>振り返りのプロンプトを変更したいです。
+今の振り返り内容に加えて、「明日やるべきこと」も提案してほしいです。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+    </div>
+
+    <div class="customize-card">
+      <h4>保存先フォルダを変えたい</h4>
+      <pre><code>Telegramから送ったメモの保存先を変更したいです。
+「#PJ」で始まるメッセージは30_Projectsに、
+それ以外は00_Inboxに保存するようにしてください。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+    </div>
+
+    <div class="customize-card">
+      <h4>Botの返信を変えたい</h4>
+      <pre><code>保存完了時のBotの返信を変更したいです。
+保存したファイル名も返信に含めてください。</code><button class="copy-btn" onclick="copyCode(this)">コピー</button></pre>
+    </div>
+
+    <!-- Troubleshooting -->
+    <h2>トラブルシューティング</h2>
+
+    <h4>Botにメッセージを送っても反応がない</h4>
+    <ul>
+      <li>Cloud Runが正常に動いているか →「Cloud Runのログを確認して」</li>
+      <li>Webhookが正しく設定されているか →「Webhookの設定を確認して」</li>
+    </ul>
+
+    <h4>音声メッセージが文字起こしされない</h4>
+    <ul>
+      <li>OpenAI APIキーが有効か確認</li>
+      <li>OpenAIのクレジット残高を確認</li>
+    </ul>
+
+    <h4>振り返りが届かない</h4>
+    <ul>
+      <li>Cloud Schedulerのログを確認</li>
+      <li>Anthropic APIのクレジット残高を確認</li>
+    </ul>
+
+    <div class="info">
+      それでも解決しない場合は、エラーメッセージやスクリーンショットをClaude Codeに送ってください。<br>
+      <code>このエラーが出ています。原因と解決方法を教えてください。</code>
+    </div>
+
+    <!-- Cost -->
+    <h2>ランニングコスト</h2>
+    <table>
+      <tr><th>サービス</th><th>料金目安</th><th>備考</th></tr>
+      <tr><td>Google Cloud Run</td><td>無料枠内</td><td>月200万リクエストまで無料</td></tr>
+      <tr><td>Cloud Scheduler</td><td>無料枠内</td><td>月3ジョブまで無料</td></tr>
+      <tr><td>OpenAI Whisper</td><td>約1円/分</td><td>音声文字起こし</td></tr>
+      <tr><td>Anthropic Claude</td><td>数円/回</td><td>振り返り生成</td></tr>
+      <tr><td><strong>合計</strong></td><td><strong>月500〜2,000円程度</strong></td><td>使い方次第</td></tr>
+    </table>
+
+    <!-- Footer -->
+    <footer>
+      <p>困ったら: 西村まで</p>
+      <p>Claude Codeに聞けば、ほとんどの問題は解決します。</p>
+    </footer>
+
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.parentElement;
+      const code = pre.querySelector('code');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        btn.textContent = 'コピー済';
+        setTimeout(() => { btn.textContent = 'コピー'; }, 2000);
+      });
+    }
+
+    // Progress bar scroll highlight
+    const steps = document.querySelectorAll('.step');
+    const progressSteps = document.querySelectorAll('.progress-step');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      steps.forEach(step => {
+        const top = step.offsetTop - 100;
+        if (window.scrollY >= top) {
+          current = step.id;
+        }
+      });
+      progressSteps.forEach(ps => {
+        ps.classList.remove('active');
+        if (ps.getAttribute('href') === '#' + current) {
+          ps.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
