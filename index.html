@@ -525,7 +525,7 @@
         <li>下のプロンプトをコピーして Claude Code に送信</li>
       </ol>
 
-      <a class="download-btn" href="TelegramBot_Setup_Guide.md" download>セットアップガイドをダウンロード</a>
+      <button class="download-btn" onclick="downloadGuide()">セットアップガイドをダウンロード</button>
 
       <div class="first-prompt">
         <label>Claude Code に最初に送るプロンプト:</label>
@@ -991,6 +991,22 @@ Telegramに振り返りメッセージが届くか確認したいです。</code
   </div>
 
   <script>
+    function downloadGuide() {
+      fetch('TelegramBot_Setup_Guide.md')
+        .then(r => r.text())
+        .then(text => {
+          const blob = new Blob([text], { type: 'text/markdown' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'TelegramBot_Setup_Guide.md';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+    }
+
     function copyCode(btn) {
       const pre = btn.parentElement;
       const code = pre.querySelector('code');
